@@ -1,5 +1,5 @@
 {
-  "name": "jukebox-theme",
+  "name": "src",
   "version": "0.0.0",
   "authors": [
     "pieroit <savastanos@libero.it>"
@@ -12,5 +12,10 @@
     "bower_components",
     "test",
     "tests"
-  ]
+  ],
+  "dependencies": {
+    "bootstrap": "~3.3.1",
+    "d3": "~3.4.13",
+    "hammerjs": "~2.0.4"
+  }
 }
