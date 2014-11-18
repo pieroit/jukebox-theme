@@ -11,8 +11,21 @@
     <body>
         <div id="main">
             <div id="header">
-            
-            <div id="sculpture"></div>
+                <h1>I'll be in holiday in SalzburgerLand</h1>
+            </div>
+            <div id="tabpanel">
+                <ul class="nav nav-tabs">
+                    <li>
+                        
+                    </li>
+                    <li>
+                        
+                    </li>
+                    <li>
+                        
+                    </li>
+                </ul>
+            </div>
           
         </div>
 
