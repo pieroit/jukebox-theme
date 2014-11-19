@@ -48,18 +48,85 @@ $(document).ready( function(){
                 return "hsl(" + Math.random() * 360 + ",100%,50%)";
             });
     
-        Hammer($(selector)[0]).on('panleft panright swipeleft swiperight', function(e){
-            var absVelocity = Math.abs(e.velocity);
-            if(e.type === 'panright')
-                rotation += rotationStep * absVelocity;
-            else if(e.type === 'panleft')
-                rotation -= rotationStep * absVelocity;
+        wheelTouch = Hammer($(selector)[0]);
+        
+        wheelTouch.get('pan')
+            .set({ direction: Hammer.DIRECTION_ALL });
+    
+        wheelTouch.on('pan swipe', function(e){
+            // Average velocities
+            var velocity = 0.5 * (Math.abs(e.velocityX) + Math.abs(e.velocityY));
+
+            // Change sign to velocity if rotation is counter-clockwise
+            var quadrant = getEventQuadrant(selector, e);
+            velocity = velocity * rotationSignRespectingQuadrantAndMovement(quadrant, e.velocityX, e.velocityY);
             
-            //rotation = rotation % 360;
-            console.log(rotation, e.velocity);
-            
+            // Rotate menu
+            rotation += rotationStep * velocity;
             center.attr('transform', 'translate(' + width/2 + ',' + height/2 + ') rotate(' + rotation + ')');
         });
+    }
+    
+    // Returns in which quadrant of an elemnent there was an event (event is in absolute coordinates)
+    function getEventQuadrant(selector, e){
+        var x = e.center.x;
+        var y = e.center.y;
+        var svgCenter = {
+            x: $(selector).offset().left + ($(selector).width()/2),
+            y: $(selector).offset().top + ($(selector).width()/2)   // It's a square!
+        };
+        
+        if( x > svgCenter.x && y < svgCenter.y)
+            return 1;
+        if( x > svgCenter.x && y > svgCenter.y)
+            return 2;
+        if( x < svgCenter.x && y > svgCenter.y)
+            return 3;
+        if( x < svgCenter.x && y < svgCenter.y)
+            return 4;
+            
+    }
+    
+    // Decide direction of rotation by observing quadrant and velocities of swipe.
+    // Could have be written in much less code, but then it would be mad-gerogliphic style
+    function rotationSignRespectingQuadrantAndMovement(quadrant, vX, vY) {
+        if( quadrant === 1 ){
+            if(Math.abs(vX) > Math.abs(vY)){
+                return -sign(vX);
+            } else {
+                return -sign(vY);
+            }
+        }
+        if( quadrant === 2 ){
+            if(Math.abs(vX) > Math.abs(vY)){
+                return sign(vX);
+            } else {
+                return -sign(vY);
+            }
+        }
+        if( quadrant === 3 ){
+            if(Math.abs(vX) > Math.abs(vY)){
+                return sign(vX);
+            } else {
+                return sign(vY);
+            }
+        }
+        if( quadrant === 4 ){
+            if(Math.abs(vX) > Math.abs(vY)){
+                return -sign(vX);
+            } else {
+                return sign(vY);
+            }
+        }
+        
+        // Exceptions solved
+        return 1;
+    }
+    
+    function sign(x){
+        if(x >= 0)
+            return 1;
+        return -1;
     }
     
     interests = ['biking', 'nature', 'eating', 'climbing', 'snowing', 'dancing'];
