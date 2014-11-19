@@ -21,6 +21,7 @@ $(document).ready( function(){
         var interval = 0.05;
         var sectorAngle = Math.PI*2 / data.length;
         var rotation = 0;
+        var rotationStep = 10;
 
         var wheel = d3.select(selector);
         
@@ -42,19 +43,22 @@ $(document).ready( function(){
             .data(data)
             .enter()
             .append('path')
-            .attr('d', arc);
+            .attr('d', arc)
+            .style("fill",function() {
+                return "hsl(" + Math.random() * 360 + ",100%,50%)";
+            });
     
-        Hammer($(selector)[0]).on('panleft panright', function(e){
-            
-            if(e.deltaX > 0)
-                rotation += 10;
-            else
-                rotation -= 10;
+        Hammer($(selector)[0]).on('panleft panright swipeleft swiperight', function(e){
+            var absVelocity = Math.abs(e.velocity);
+            if(e.type === 'panright')
+                rotation += rotationStep * absVelocity;
+            else if(e.type === 'panleft')
+                rotation -= rotationStep * absVelocity;
             
             //rotation = rotation % 360;
-            console.log(rotation);
+            console.log(rotation, e.velocity);
             
-            center.transition().duration(500).attr('transform', 'translate(' + width/2 + ',' + height/2 + ') rotate(' + rotation + ')');
+            center.attr('transform', 'translate(' + width/2 + ',' + height/2 + ') rotate(' + rotation + ')');
         });
     }
     
