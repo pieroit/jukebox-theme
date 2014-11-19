@@ -12,8 +12,7 @@ $(document).ready( function(){
         var scalingFactor = 0.5;
         var interval = 0.05;
         var sectorAngle = Math.PI*2 / data.length;
-        var delta = 1;
-        var sumDelta = 0;
+        var rotation = 0;
 
         var wheel = d3.select(selector);
         
@@ -38,8 +37,12 @@ $(document).ready( function(){
             .attr('d', arc);
     
         Hammer($(selector)[0]).on('panleft panright swipeleft swiperight', function(e){
-            console.log(e);
-            var rotation = e.deltaX;
+            
+            if(e.deltaX > 0)
+                rotation += 10;
+            else
+                rotation -= 10;
+            console.log(rotation, e.type);
             center.transition(e.deltaTime).attr('transform', 'translate(' + width/2 + ',' + height/2 + ') rotate(' + rotation + ')');
         });
     }
