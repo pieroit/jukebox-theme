@@ -1,4 +1,12 @@
 $(document).ready( function(){
+    
+    // Disable page bouncing
+    $(document).bind(
+      'touchmove',
+          function(e) {
+            e.preventDefault();
+          }
+    );
 
     function buildWheel( selector, data ) {
         // Expand svg to parent size
@@ -36,14 +44,17 @@ $(document).ready( function(){
             .append('path')
             .attr('d', arc);
     
-        Hammer($(selector)[0]).on('panleft panright swipeleft swiperight', function(e){
+        Hammer($(selector)[0]).on('panleft panright', function(e){
             
             if(e.deltaX > 0)
-                rotation += 10;
+                rotation += 50;
             else
-                rotation -= 10;
-            console.log(rotation, e.type);
-            center.transition(e.deltaTime).attr('transform', 'translate(' + width/2 + ',' + height/2 + ') rotate(' + rotation + ')');
+                rotation -= 50;
+            
+            rotation = rotation % 360;
+            console.log(rotation);
+            
+            center.transition().duration(500).attr('transform', 'translate(' + width/2 + ',' + height/2 + ') rotate(' + rotation + ')');
         });
     }
     
