@@ -37,10 +37,11 @@ $(document).ready( function(){
             .append('path')
             .attr('d', arc);
     
-        setInterval(function(){
-            delta = delta + 100;
-            center.transition().attr('transform', 'translate(' + width/2 + ',' + height/2 + ') rotate(' + delta + ')');
-        }, 3000);
+        Hammer($(selector)[0]).on('panleft panright swipeleft swiperight', function(e){
+            console.log(e);
+            var rotation = e.deltaX;
+            center.transition(e.deltaTime).attr('transform', 'translate(' + width/2 + ',' + height/2 + ') rotate(' + rotation + ')');
+        });
     }
     
     interests = ['biking', 'nature', 'eating', 'climbing', 'snowing', 'dancing'];
