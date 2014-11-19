@@ -47,11 +47,11 @@ $(document).ready( function(){
         Hammer($(selector)[0]).on('panleft panright', function(e){
             
             if(e.deltaX > 0)
-                rotation += 50;
+                rotation += 10;
             else
-                rotation -= 50;
+                rotation -= 10;
             
-            rotation = rotation % 360;
+            //rotation = rotation % 360;
             console.log(rotation);
             
             center.transition().duration(500).attr('transform', 'translate(' + width/2 + ',' + height/2 + ') rotate(' + rotation + ')');
