@@ -26,21 +26,21 @@ $(document).ready( function(){
             .endAngle( function(d, i){
                 return (sectorAngle * (i+1)) - interval;
             });
+            
+        center = wheel.append('g')
+            .attr('transform', 'translate(' + width/2 + ',' + height/2 + ')');
+            //.attr('transition', 'transform 2s');
     
-        wheel.selectAll('path')
+        center.selectAll()
             .data(data)
             .enter()
             .append('path')
-            .attr('d', arc)
-            .attr('transform', 'translate(' + width/2 + ',' + height/2 + ')');
+            .attr('d', arc);
     
         setInterval(function(){
-            delta = delta + 1;
-            wheel.selectAll('path')
-                .attr('transform', 'translate(' + width/2 + ',' + height/2 + ')')
-                .attr('transform', 'rotate(' + delta + ')');
-                //.attr('transform', 'translate(' + width/2 + ',' + height/2 + ')');
-        }, 50);
+            delta = delta + 100;
+            center.transition().attr('transform', 'translate(' + width/2 + ',' + height/2 + ') rotate(' + delta + ')');
+        }, 3000);
     }
     
     interests = ['biking', 'nature', 'eating', 'climbing', 'snowing', 'dancing'];
