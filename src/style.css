@@ -11,6 +11,11 @@ This theme, like WordPress, is licensed under the GPL.
 Use it to make something cool, have fun, and share what you've learned with others.
 */
 
+body {
+    width: 100%;
+    height: 100%;
+}
+
 .wheel-container {
     width: 300px;
     height: 300px;
