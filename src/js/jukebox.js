@@ -61,7 +61,7 @@ $(document).ready(function() {
         wheelTouch.on('tap', function(el){
                 selectedValue = d3.select(el.target).data()[0];
                 if(selectedValue !== undefined){
-                    console.log(selectedValue);
+                    alert(selectedValue);
                 }
             })
             .on('pan swipe', function(e) {
