@@ -19,17 +19,19 @@ $(document).ready(function() {
 
         // Other params
         var scalingFactor = 0.5;
+        var innerRadius = width * scalingFactor / 2;
+        var outerRadius = width * scalingFactor;
         var interval = 0.05;
         var sectorAngle = Math.PI * 2 / data.length;
-        var rotation = 0;
+        var rotation = 0.000001;    // Avoid devide-by-zero problems
         var rotationStep = 10;
 
         var wheel = d3.select(selector);
 
         // Build arc
         var arc = d3.svg.arc()
-                .innerRadius(width * scalingFactor / 2)
-                .outerRadius(width * scalingFactor)
+                .innerRadius(innerRadius)
+                .outerRadius(outerRadius)
                 .startAngle(function(d, i) {
                     return sectorAngle * i;
                 })
@@ -41,15 +43,65 @@ $(document).ready(function() {
         center = wheel.append('g')
                 .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')');
         
-        // Add arcs
+        // Add arc + label groups
         center.selectAll()
                 .data(data)
                 .enter()
+                .append('g');
+                
+        // Add arcs
+        center.selectAll('g')
                 .append('path')
                 .attr('d', arc)
-                .attr('class', 'sectorbutton')
-                .style("fill", function() {
+                .attr('class', 'sector-button')
+                .style('fill', function() {
                     return "hsl(" + Math.random() * 360 + ",100%,50%)";
+                });
+        
+        // Add labels
+        center.selectAll('g')
+                .append('text')
+                .attr('class','sector-text')
+                .attr('transform', function(d, i){
+                    info = getLabelsXYAngle(i); 
+                    return 'rotate(' + info.angle + ',' + info.cx + ',' + info.cy + ')';
+                })
+                .attr('x', function(d, i){
+                    return getLabelsXYAngle(i).cx;
+                })
+                .attr('dy', function(d, i){
+                    return getLabelsXYAngle(i).cy;
+                })
+                .html( function(d){
+                    return d;
+                });
+              
+        
+        // Add triangle to indicate current selection
+        wheel.append('polygon')
+            .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')')
+            .attr('points', function() {
+                var width = innerRadius/2;
+                var height = innerRadius*1.2;
+                return -width/2 + ',' + '0 0' + -height + ', ' + width/2 + ',0';
+            })
+            .style('fill', 'gray');
+        
+        // Add OK button
+        wheel.append('circle')
+            .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')')
+            .attr('r', innerRadius*0.7)
+            .style('fill', 'gray')
+            .attr('id', 'ok-button');
+    
+        // Add OK text
+        wheel.append('text')
+                .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')')
+                .attr('id','ok-button-text')
+                .attr('x', -10)
+                .attr('dy', 0)
+                .html( function(d){
+                    return 'Ok';
                 });
         
         // Init touch controls
@@ -60,8 +112,20 @@ $(document).ready(function() {
         // Tap and Rotation controls
         wheelTouch.on('tap', function(el){
                 selectedValue = d3.select(el.target).data()[0];
+                
                 if(selectedValue !== undefined){
-                    alert(selectedValue);
+                    // Tap on sector
+                    updateInput(selectedValue);
+                } else {
+                    // Tap on center
+                    elementId = $(el.target).attr('id');
+                    if( elementId.indexOf('ok-button') > -1 ){
+                        // Which input was chosen?
+                        actualRotation = rotation % 360;
+                        selectedValue = 360/actualRotation;
+                        
+                        updateInput(selectedValue);
+                    }
                 }
             })
             .on('pan swipe', function(e) {
@@ -75,8 +139,29 @@ $(document).ready(function() {
                 // Rotate menu
                 rotation += rotationStep * velocity;
                 center.attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ') rotate(' + rotation + ')');
-            }); 
-    }  
+            });
+            
+        // Utility function to create labels
+        function getLabelsXYAngle(i){
+            var labelXYA = {};
+            
+            // Label rotation angle
+            var angle = (sectorAngle * i) + (Math.PI/data.length);
+            labelXYA.angle = (angle * 360) / (Math.PI * 2);
+            
+            // Label coordinates
+            var startAngle = Math.PI/2;
+            var radius = (innerRadius + outerRadius) / 2
+            labelXYA.cx = radius * Math.cos(-startAngle + (sectorAngle/3) + (sectorAngle * i));
+            labelXYA.cy = radius * Math.sin(-startAngle + (sectorAngle/3) + (sectorAngle * i));
+            
+            return labelXYA;
+        }
+        
+        function updateInput(i){
+            console.log(i);
+        }
+    } 
 
     // Returns in which quadrant of an elemnent there was an event (event is in absolute coordinates)
     function getEventQuadrant(selector, e) {
@@ -95,7 +180,6 @@ $(document).ready(function() {
             return 3;
         if (x < svgCenter.x && y < svgCenter.y)
             return 4;
-
     }
 
     // Decide direction of rotation by observing quadrant and velocities of swipe.
