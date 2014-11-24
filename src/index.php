@@ -17,33 +17,37 @@
 
             <!-- Nav tabs -->
             <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" class="active"><a href="#select-date" role="tab" data-toggle="tab">Select date</a></li>
-                <li role="presentation"><a href="#select-interest" role="tab" data-toggle="tab">Select interest</a></li>
+                <li id="select-date-tab" role="presentation" class="active"><a href="#select-date" role="tab" data-toggle="tab">Select date</a></li>
+                <li id="select-interest-tab" role="presentation"><a href="#select-interest" role="tab" data-toggle="tab">Select interest</a></li>
             </ul>
 
             <!-- Tab panes -->
             <div class="tab-content">
                 
-                <!-- Select date tab -->
-                <div role="tabpanel" class="tab-pane active" id="select-date">
-                    <div class="current-choice">
-                        Arriving: 
-                        </br>
-                        Departing:
-                    </div>
-                    <div class="wheel-container">
-                        <!-- this svg will contain thw wheel and will expand to the size of the parent div -->
-                        <svg id="date-wheel"></svg>
-                    </div>
-                    
-                </div>
-                
                 <!-- Select interest tab -->
                 <div role="tabpanel" class="tab-pane" id="select-interest">
                     <div class="current-choice">
-                        I'm interested in:
+                        <label>I'm interested in:</label>
+                        <input id="interest-input" name="interests[]" readonly />
                     </div>
                 </div>
+                
+                <!-- Select date tab -->
+                <div role="tabpanel" class="tab-pane active" id="select-date">
+                    <div class="current-choice">
+                        <label>Arriving:</label>
+                        <input id="date-from-input" name="date-from" readonly />
+                        </br>
+                        <label>Departing:</label>
+                        <input id="date-to-input" name="date-to" readonly />
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="wheel-container">
+                <!-- this svg will contain thw wheel and will expand to the size of the parent div -->
+                <svg id="date-wheel"></svg>
             </div>
 
 

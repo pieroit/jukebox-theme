@@ -9,7 +9,13 @@ $(document).ready(function() {
     );
 
     // Buold wheel and rotation controls
-    function buildWheel(selector, data) {
+    function buildWheel(selector) {
+        
+        
+        console.log(data);
+        // Clear div contents
+        $(selector).empty();
+        
         // Expand svg to parent size
         $(selector).width('100%').height('100%');
 
@@ -40,7 +46,7 @@ $(document).ready(function() {
                 });
 
         // Create grouping element and move it to the center
-        center = wheel.append('g')
+        var center = wheel.append('g')
                 .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')');
 
         // Add arc + label groups
@@ -76,7 +82,6 @@ $(document).ready(function() {
                     return d;
                 });
 
-
         // Add triangle to indicate current selection
         wheel.append('polygon')
                 .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')')
@@ -105,12 +110,13 @@ $(document).ready(function() {
                 });
 
         // Init touch controls
-        wheelTouch = Hammer($(selector)[0]);
+        var wheelTouch = Hammer($(selector)[0]);
         wheelTouch.get('pan')
                 .set({direction: Hammer.DIRECTION_ALL});
-
+        
         // Tap and Rotation controls
         wheelTouch.on('tap', function(el) {
+            console.log(data);
             selectedValue = d3.select(el.target).data()[0];
 
             if (selectedValue !== undefined) {
@@ -129,23 +135,31 @@ $(document).ready(function() {
                     }
                     var selectedIndex = (actualRotation * data.length) / 360;
                     selectedIndex = Math.floor(selectedIndex);
-
                     updateInput(data[selectedIndex]);
                 }
             }
         })
-                .on('pan swipe', function(e) {
-                    // Average velocities
-                    var velocity = 0.5 * (Math.abs(e.velocityX) + Math.abs(e.velocityY));
+        .on('pan swipe', function(e) {
+            // Average velocities
+            var velocity = 0.5 * (Math.abs(e.velocityX) + Math.abs(e.velocityY));
 
-                    // Change sign to velocity if rotation is counter-clockwise
-                    var quadrant = getEventQuadrant(selector, e);
-                    velocity = velocity * rotationSignRespectingQuadrantAndMovement(quadrant, e.velocityX, e.velocityY);
+            // Change sign to velocity if rotation is counter-clockwise
+            var quadrant = getEventQuadrant(selector, e);
+            velocity = velocity * rotationSignRespectingQuadrantAndMovement(quadrant, e.velocityX, e.velocityY);
 
-                    // Rotate menu
-                    rotation += rotationStep * velocity;
-                    center.attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ') rotate(' + rotation + ')');
-                });
+            // Trigger events
+            if(velocity < 0) {
+                $(document).trigger('rotateAntiClockwise');
+            } else {
+                $(document).trigger('rotateClockwise');
+            }
+            
+            // Update rotation
+            rotation += rotationStep * velocity;            
+            
+            // Rotate wheel
+            center.attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ') rotate(' + rotation + ')');
+        });
 
         // Utility function to create labels
         function getLabelsXYAngle(i) {
@@ -165,7 +179,8 @@ $(document).ready(function() {
         }
 
         function updateInput(value) {
-            alert(value);
+            $(document).trigger('centerWheelPress', value);
+            console.log('CHOSEN', value);
         }
     }
 
@@ -229,8 +244,61 @@ $(document).ready(function() {
             return 1;
         return -1;
     }
-
+    
     // Execution starts here
-    interests = ['biking', 'nature', 'eating', 'climbing', 'snowing', 'dancing'];
-    buildWheel('#date-wheel', interests);
+    var interests = ['biking', 'nature', 'eating', 'climbing', 'snowing', 'dancing'];
+    var dates = [];
+    for(var i=0; i<20; i++){
+        dates.push('');
+    }
+    
+    // Build initial wheel
+    var data = dates;
+    var date = new Date();
+    $('#date-from-input').val( date.getDate() );
+    $('#date-to-input').val( date.getDate() + 3 );
+    var decidedFromDate = false;
+    var decidedToDate = false;
+    buildWheel('#date-wheel');
+    
+    // Tab switching events
+    Hammer( $('#select-interest-tab')[0] ).on('tap', function(){
+        data = interests;
+        buildWheel('#date-wheel');
+    });
+    Hammer( $('#select-date-tab')[0] ).on('tap', function(){
+        data = dates;
+        buildWheel('#date-wheel');
+    });
+    
+    // Events fired by the wheel
+    $(document).on('rotateAntiClockwise', function(){
+        if(!decidedFromDate){
+            var fromDate = parseInt( $('#date-from-input').val(), 10);
+            $('#date-from-input').val( fromDate - 1 );
+        } else if(!decidedToDate) {
+            var toDate = parseInt( $('#date-to-input').val(), 10);
+            $('#date-to-input').val( toDate - 1 );
+        }
+    });
+    $(document).on('rotateClockwise', function(){
+        if( !decidedFromDate){
+            var fromDate = parseInt( $('#date-from-input').val(), 10);
+            $('#date-from-input').val( fromDate + 1 );
+        } else if(!decidedToDate) {
+            var toDate = parseInt( $('#date-to-input').val(), 10);
+            $('#date-to-input').val( toDate + 1 );
+        }
+    });
+    $(document).on('centerWheelPress', function(e, value){
+        console.log(value);
+        if( !decidedFromDate ) {
+            decidedFromDate = true;
+        }
+        else if( !decidedToDate ){
+            decidedToDate = true;
+        } else {
+            $('#select-interest-tab').trigger('tap');
+        }
+    });
 });
