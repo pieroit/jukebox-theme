@@ -127,14 +127,7 @@ $(document).ready(function() {
                 elementId = $(el.target).attr('id');
                 if (elementId.indexOf('ok-button') > -1) {
                     // Which input was chosen?
-                    var actualRotation = rotation % 360;
-                    if (actualRotation > 0) {
-                        actualRotation = Math.abs(360 - actualRotation);
-                    } else {
-                        actualRotation = Math.abs(actualRotation);
-                    }
-                    var selectedIndex = (actualRotation * data.length) / 360;
-                    selectedIndex = Math.floor(selectedIndex);
+                    var selectedIndex = getSectorIndexFromRotation(rotation, data.length);
                     updateInput(data[selectedIndex]);
                 }
             }
@@ -147,11 +140,14 @@ $(document).ready(function() {
             var quadrant = getEventQuadrant(selector, e);
             velocity = velocity * rotationSignRespectingQuadrantAndMovement(quadrant, e.velocityX, e.velocityY);
 
-            // Trigger events
-            if(velocity < 0) {
-                $(document).trigger('rotateAntiClockwise');
-            } else {
-                $(document).trigger('rotateClockwise');
+            // Trigger events (only meaningful ones)
+            //console.log(Math.abs(rotation)%sectorAngle);
+            if( thereWasASectorSwitch(rotation, rotationStep*velocity, data.length)){
+                if(velocity < 0) {
+                    $(document).trigger('rotateAntiClockwise');
+                } else {
+                    $(document).trigger('rotateClockwise');
+                }
             }
             
             // Update rotation
@@ -180,7 +176,6 @@ $(document).ready(function() {
 
         function updateInput(value) {
             $(document).trigger('centerWheelPress', value);
-            console.log('CHOSEN', value);
         }
     }
 
@@ -238,6 +233,29 @@ $(document).ready(function() {
         // Exceptions solved
         return 1;
     }
+    
+    // Deduce if pointed sector changed based on rotation of wheel and its derivative
+    function thereWasASectorSwitch(rotation, delta, nSectors){
+        var indexBefore = getSectorIndexFromRotation(rotation, nSectors);
+        var indexNow = getSectorIndexFromRotation(rotation+delta, nSectors);
+        
+        if(indexBefore !== indexNow){
+            return true;
+        }
+        return false;
+    }
+    
+    // Deduce index of sector from rotation
+    function getSectorIndexFromRotation(rotation, nSectors){
+        var actualRotation = rotation % 360;
+        if (actualRotation > 0) {
+            actualRotation = Math.abs(360 - actualRotation);
+        } else {
+            actualRotation = Math.abs(actualRotation);
+        }
+        var selectedIndex = (actualRotation * nSectors) / 360;
+        return Math.floor(selectedIndex);
+    }
 
     function sign(x) {
         if (x >= 0)
@@ -259,16 +277,21 @@ $(document).ready(function() {
     $('#date-to-input').val( date.getDate() + 3 );
     var decidedFromDate = false;
     var decidedToDate = false;
-    buildWheel('#date-wheel');
+    buildWheel('#wheel');
     
     // Tab switching events
     Hammer( $('#select-interest-tab')[0] ).on('tap', function(){
         data = interests;
-        buildWheel('#date-wheel');
+        buildWheel('#wheel');
     });
     Hammer( $('#select-date-tab')[0] ).on('tap', function(){
         data = dates;
-        buildWheel('#date-wheel');
+        buildWheel('#wheel');
+    });
+        
+    Hammer( $('#date-from-input')[0] ).on('tap', function(){
+        decidedFromDate = false;
+        decidedToDate = false;
     });
     
     // Events fired by the wheel
@@ -291,13 +314,18 @@ $(document).ready(function() {
         }
     });
     $(document).on('centerWheelPress', function(e, value){
-        console.log(value);
         if( !decidedFromDate ) {
             decidedFromDate = true;
         }
         else if( !decidedToDate ){
             decidedToDate = true;
+            data = interests;
+            buildWheel('#wheel');
+            $('a[href="#select-interest"]').tab('show');
         } else {
+            var chosenInterests = $('#interest-input').val() + ', ' + value;
+            console.log(chosenInterests);
+            $('#interest-input').val(chosenInterests);
             $('#select-interest-tab').trigger('tap');
         }
     });

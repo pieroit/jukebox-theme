@@ -47,7 +47,7 @@
             
             <div class="wheel-container">
                 <!-- this svg will contain thw wheel and will expand to the size of the parent div -->
-                <svg id="date-wheel"></svg>
+                <svg id="wheel"></svg>
             </div>
 
 
