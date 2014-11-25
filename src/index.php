@@ -57,6 +57,7 @@
         <script src="<?php echo get_template_directory_uri(); ?>/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
         <script src="<?php echo get_template_directory_uri(); ?>/bower_components/hammerjs/hammer.min.js"></script>
         <script src="<?php echo get_template_directory_uri(); ?>/bower_components/d3/d3.min.js"></script>
+        <script src="<?php echo get_template_directory_uri(); ?>/js/jukebox-functions.js"></script>
         <script src="<?php echo get_template_directory_uri(); ?>/js/jukebox.js"></script>
     </body>
 </html>
