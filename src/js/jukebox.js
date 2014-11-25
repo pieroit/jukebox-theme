@@ -11,8 +11,6 @@ $(document).ready(function() {
     // Buold wheel and rotation controls
     function buildWheel(selector) {
         
-        
-        console.log(data);
         // Clear div contents
         $(selector).empty();
         
@@ -116,7 +114,6 @@ $(document).ready(function() {
         
         // Tap and Rotation controls
         wheelTouch.on('tap', function(el) {
-            console.log(data);
             selectedValue = d3.select(el.target).data()[0];
 
             if (selectedValue !== undefined) {
@@ -141,7 +138,6 @@ $(document).ready(function() {
             velocity = velocity * rotationSignRespectingQuadrantAndMovement(quadrant, e.velocityX, e.velocityY);
 
             // Trigger events (only meaningful ones)
-            //console.log(Math.abs(rotation)%sectorAngle);
             if( thereWasASectorSwitch(rotation, rotationStep*velocity, data.length)){
                 if(velocity < 0) {
                     $(document).trigger('rotateAntiClockwise');
@@ -178,6 +174,8 @@ $(document).ready(function() {
             $(document).trigger('centerWheelPress', value);
         }
     }
+    
+    /////////////////////////////////////////
     
     // Execution starts here
     var interests = ['biking', 'nature', 'eating', 'climbing', 'snowing', 'dancing'];
@@ -239,10 +237,11 @@ $(document).ready(function() {
             buildWheel('#wheel');
             $('a[href="#select-interest"]').tab('show');
         } else {
-            var chosenInterests = $('#interest-input').val() + ', ' + value;
-            console.log(chosenInterests);
+            var chosenInterests = $('#interest-input').val();
+            chosenInterests += value + ',';
+            chosenInterests = deleteDuplicates( chosenInterests.split(',') );
+            chosenInterests = chosenInterests.join(',');
             $('#interest-input').val(chosenInterests);
-            $('#select-interest-tab').trigger('tap');
         }
     });
 });

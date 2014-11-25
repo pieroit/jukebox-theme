@@ -82,3 +82,14 @@ function sign(x) {
     return -1;
 }
 
+// Delete duplicate elements in an array
+function deleteDuplicates(list){
+    var cleanList = [];
+    for(var i=0; i<list.length; i++){
+        if(cleanList.indexOf(list[i]) === -1){
+            cleanList.push(list[i]);
+        }
+    }
+    return cleanList;
+}
+
